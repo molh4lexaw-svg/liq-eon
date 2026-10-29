@@ -532,7 +532,8 @@ footer .credit{display:block;margin-top:4px;font-weight:700;color:var(--indigo)}
 .panel-head p{color:var(--ink2)}
 .btn{border-radius:12px;font-weight:700;font-family:var(--f)}
 .btn-primary{background:linear-gradient(135deg,#6366f1,#0ea5e9);color:#fff;border:1px solid transparent;box-shadow:0 8px 18px -8px rgba(99,102,241,.7)}
-.btn-primary:hover{filter:brightness(1.05)}
+.btn-primary:hover{background:linear-gradient(135deg,#6366f1,#0ea5e9);color:#fff;filter:brightness(1.07)}
+.btn-coral:hover{background:linear-gradient(135deg,#f43f5e,#f97316);color:#fff;filter:brightness(1.07)}
 .btn-coral{background:linear-gradient(135deg,#f43f5e,#f97316);color:#fff;border:1px solid transparent}
 .btn-outline{background:rgba(255,255,255,.75);color:var(--indigo);border:1px solid rgba(99,102,241,.35)}
 .btn-outline:hover{background:#fff}
@@ -2457,6 +2458,58 @@ const HEADER_FIELDS = [
   {key:'Distrito', label:'Distrito'},
 ];
 
+// Importa las filas de la hoja "Data" del export de ZPM010 (desde archivo o desde el conector SAP).
+function importarFilasPresupuesto(rows, nombre){
+  if(!rows || rows.length===0){ alert('El archivo no tiene filas de datos.'); return false; }
+  const servicios = [];
+  const materiales = [];
+  const omitidas = [];
+  rows.forEach(r=>{
+    const codigo = String(r['Material']||'').trim();
+    if(!codigo) return;
+    // Las posiciones "S21..." de ZPM010 repiten un servicio con precio 0: no se liquidan.
+    if(!/^\d/.test(codigo)){ omitidas.push(codigo); return; }
+    const item = {
+      codigo,
+      desc: r['Texto del Material']||'',
+      cantPresupuestada: Number(r['Cantidad presupuestada'])||0,
+      unidad: r['Unidad medida base']||'',
+      precioUnit: Number(r['Precio Unitario'])||0,
+      precioTotal: Number(r['Precio'])||0,
+      cantEjecutada: '',
+    };
+    // "Tipo de Pos (Mat o Serv)": N = servicio, L = material. Sin esa columna, el prefijo del código.
+    const tipo = String(r['Tipo de Pos (Mat o Serv)']||'').trim().toUpperCase();
+    const esServicio = tipo ? tipo === 'N' : codigo.startsWith('2');
+    if(esServicio) servicios.push(item);
+    else if(tipo || codigo.startsWith('1')) materiales.push(item);
+  });
+
+  if(servicios.length===0 && materiales.length===0){
+    alert('No se encontraron filas con código de Material que empiece en "1" o "2".');
+    return;
+  }
+
+  const first = rows[0];
+  const header = {};
+  HEADER_FIELDS.forEach(f=> header[f.key] = first[f.key]);
+
+  // Si se indicó una ODM a ubicar, el archivo debe ser de esa misma ODM.
+  const odmArchivo = String(header['ODM Presupuestada'] || '').trim().replace(/^0+/, '');
+  const odmBuscada = String(STATE.presupuesto.odmBuscada || '').trim().replace(/^0+/, '');
+  if(odmBuscada && odmArchivo && odmBuscada !== odmArchivo){
+    if(!confirm(`La ODM indicada (${STATE.presupuesto.odmBuscada}) no coincide con la del archivo (${header['ODM Presupuestada']}). ¿Importar de todos modos?`)) return;
+  }
+  STATE.presupuesto = {
+    header, servicios, materiales, omitidas,
+    odmBuscada: STATE.presupuesto.odmBuscada || String(header['ODM Presupuestada'] || ''),
+    archivo: nombre, importadoEn: new Date().toISOString(),
+  };
+  saveState();
+  renderAll();
+  return true;
+}
+
 function handlePresupuestoFile(file){
   const reader = new FileReader();
   reader.onload = (e)=>{
@@ -2466,54 +2519,7 @@ function handlePresupuestoFile(file){
       const sheetName = wb.SheetNames.includes('Data') ? 'Data' : wb.SheetNames[0];
       const ws = wb.Sheets[sheetName];
       const rows = XLSX.utils.sheet_to_json(ws, {defval:''});
-      if(rows.length===0){ alert('El archivo no tiene filas de datos.'); return; }
-
-      const servicios = [];
-      const materiales = [];
-      const omitidas = [];
-      rows.forEach(r=>{
-        const codigo = String(r['Material']||'').trim();
-        if(!codigo) return;
-        // Las posiciones "S21..." de ZPM010 repiten un servicio con precio 0: no se liquidan.
-        if(!/^\d/.test(codigo)){ omitidas.push(codigo); return; }
-        const item = {
-          codigo,
-          desc: r['Texto del Material']||'',
-          cantPresupuestada: Number(r['Cantidad presupuestada'])||0,
-          unidad: r['Unidad medida base']||'',
-          precioUnit: Number(r['Precio Unitario'])||0,
-          precioTotal: Number(r['Precio'])||0,
-          cantEjecutada: '',
-        };
-        // "Tipo de Pos (Mat o Serv)": N = servicio, L = material. Sin esa columna, el prefijo del código.
-        const tipo = String(r['Tipo de Pos (Mat o Serv)']||'').trim().toUpperCase();
-        const esServicio = tipo ? tipo === 'N' : codigo.startsWith('2');
-        if(esServicio) servicios.push(item);
-        else if(tipo || codigo.startsWith('1')) materiales.push(item);
-      });
-
-      if(servicios.length===0 && materiales.length===0){
-        alert('No se encontraron filas con código de Material que empiece en "1" o "2".');
-        return;
-      }
-
-      const first = rows[0];
-      const header = {};
-      HEADER_FIELDS.forEach(f=> header[f.key] = first[f.key]);
-
-      // Si se indicó una ODM a ubicar, el archivo debe ser de esa misma ODM.
-      const odmArchivo = String(header['ODM Presupuestada'] || '').trim().replace(/^0+/, '');
-      const odmBuscada = String(STATE.presupuesto.odmBuscada || '').trim().replace(/^0+/, '');
-      if(odmBuscada && odmArchivo && odmBuscada !== odmArchivo){
-        if(!confirm(`La ODM indicada (${STATE.presupuesto.odmBuscada}) no coincide con la del archivo (${header['ODM Presupuestada']}). ¿Importar de todos modos?`)) return;
-      }
-      STATE.presupuesto = {
-        header, servicios, materiales, omitidas,
-        odmBuscada: STATE.presupuesto.odmBuscada || String(header['ODM Presupuestada'] || ''),
-        archivo: file.name, importadoEn: new Date().toISOString(),
-      };
-      saveState();
-      renderAll();
+      importarFilasPresupuesto(rows, file.name);
     }catch(err){
       alert('No se pudo leer el archivo. Verifica que sea el export de SAP en formato .xlsx.\n\n'+err.message);
     }
@@ -2544,12 +2550,15 @@ function renderPresupuestoPanel(){
   odmBox.innerHTML = `
     <label for="odm-buscar">ODM a ubicar</label>
     <input id="odm-buscar" type="text" inputmode="numeric" placeholder="Ej: 800012633" value="${String(st.odmBuscada || '').replace(/"/g, '&quot;')}">
-    <span class="hint">Se compara con la ODM del archivo que importes.</span>`;
+    <button class="btn btn-primary btn-small" id="btn-traer-sap">⚡ Traer de SAP</button>
+    <span class="hint" id="sap-estado">Trae el presupuesto de ZPM010 con el conector local, o importa el .xlsx abajo.</span>`;
   panel.appendChild(odmBox);
   odmBox.querySelector('#odm-buscar').onchange = (e)=>{
     STATE.presupuesto.odmBuscada = e.target.value.trim();
     saveState();
   };
+  odmBox.querySelector('#odm-buscar').onkeydown = (e)=>{ if(e.key==='Enter') traerDeSap(); };
+  odmBox.querySelector('#btn-traer-sap').onclick = traerDeSap;
 
   panel.appendChild(head);
   if(st.header){
@@ -4381,6 +4390,44 @@ document.addEventListener('click', (e)=>{
 });
 
 
+
+/* ---------- Conector SAP local (sap_conector.py en http://127.0.0.1:8765) ---------- */
+const SAP_CONECTOR_URL = 'http://127.0.0.1:8765';
+async function traerDeSap(){
+  const input = document.getElementById('odm-buscar');
+  const estado = document.getElementById('sap-estado');
+  const btn = document.getElementById('btn-traer-sap');
+  const odm = (input && input.value || '').trim();
+  if(!/^\d{6,12}$/.test(odm)){ alert('Escribe una ODM válida (solo números), por ejemplo 800012633.'); return; }
+  STATE.presupuesto.odmBuscada = odm; saveState();
+  const ponerEstado = (t, color)=>{ if(estado){ estado.textContent = t; estado.style.color = color || ''; } };
+  btn.disabled = true;
+  ponerEstado('Consultando ZPM010 en SAP… (puede tardar hasta 1 minuto)');
+  try{
+    const ctrl = new AbortController();
+    const t = setTimeout(()=> ctrl.abort(), 240000);
+    let res;
+    try{ res = await fetch(`${SAP_CONECTOR_URL}/odm/${odm}`, { signal: ctrl.signal }); }
+    finally{ clearTimeout(t); }
+    const data = await res.json();
+    if(!data.ok) throw new Error(data.error || 'Error del conector');
+    if(importarFilasPresupuesto(data.filas, data.archivo)){
+      chispi.say('Presupuesto traído de SAP', `ODM <b>${odm}</b> · presupuesto <b>${data.presupuesto}</b>: ${STATE.presupuesto.servicios.length} servicios y ${STATE.presupuesto.materiales.length} materiales.`, '#10b981', null, 8000, 'f_feliz', 'p_celebra');
+    }
+  }catch(err){
+    const sinConector = err.name === 'TypeError' || err.name === 'AbortError';
+    const msg = sinConector
+      ? 'No se pudo conectar con el conector SAP. Abre "iniciar_conector.bat" (sap_conector.py) y vuelve a intentar.'
+      : 'SAP: ' + err.message;
+    alert(msg);
+    const e = document.getElementById('sap-estado');
+    if(e){ e.textContent = msg; e.style.color = 'var(--rose)'; }
+  }finally{
+    const b = document.getElementById('btn-traer-sap');
+    if(b) b.disabled = false;
+  }
+}
+
 /* ---------- Cuadre del presupuesto importado contra los montos de SAP ---------- */
 function renderCuadreSap(st){
   const suma = (arr)=> arr.reduce((a, i)=> a + (Number(i.precioTotal) || 0), 0);
@@ -4405,7 +4452,7 @@ function pasosLiquidacion(){
   const pre = STATE.preliq || {};
   return [
     { k:'odm',      t:'ODM indicada',             ok: !!p.odmBuscada,     tab:'presupuesto', d: p.odmBuscada || 'Escribe la ODM a ubicar' },
-    { k:'zpm010',   t:'Presupuesto ZPM010',       ok: !!p.header,         tab:'presupuesto', d: p.header ? `${p.servicios.length} serv. · ${p.materiales.length} mat.` : 'Importa el export .xlsx' },
+    { k:'zpm010',   t:'Presupuesto ZPM010',       ok: !!p.header,         tab:'presupuesto', d: p.header ? `${p.servicios.length} serv. · ${p.materiales.length} mat.` : 'Traer de SAP o importar .xlsx' },
     { k:'asociar',  t:'Materiales asociados',     ok: asociadas,          tab:'asociar',     d: asociadas ? 'Fichas habilitadas' : 'Asocia actividades y materiales' },
     { k:'detalle',  t:'Detalle ejecutado',        ok: conDetalle,         tab: (SHEETS.find(sh=> isFichaHabilitada(sh)) || {}).key || 'asociar', d: conDetalle ? 'Vías registradas' : 'Registra vías y actividades' },
     { k:'liq',      t:'Liquidación generada',     ok: !!pre.generadaEn,   tab:'preliq',      d: pre.generadaEn ? fmtS(pre.totalGenerado) : '⚡ Liquidación automática' },
