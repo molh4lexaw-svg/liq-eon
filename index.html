@@ -555,6 +555,28 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--indigo);
 .pet{position:relative;display:block;width:52px;height:64px;padding:0;border:0;background:none;cursor:grab;touch-action:none;-webkit-tap-highlight-color:transparent}
 .pet:active{cursor:grabbing}
 #chispi .bub{position:absolute;max-width:280px}
+.flujo{background:var(--glass);border:1px solid var(--glass-b);border-radius:var(--r);box-shadow:var(--sh);padding:12px 16px;margin-bottom:12px}
+.flujo-head{display:flex;justify-content:space-between;gap:10px;font-size:12.5px;margin-bottom:10px;color:var(--ink)}
+.flujo-head span{color:var(--indigo);font-weight:700}
+.flujo-pasos{list-style:none;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;margin:0;padding:0}
+.flujo-pasos li{display:flex;flex-direction:column;gap:2px;padding:9px 10px;border-radius:14px;background:rgba(31,37,68,.04);cursor:pointer;min-width:0;transition:background .2s}
+.flujo-pasos li:hover{background:#fff}
+.flujo-pasos li i{font-style:normal;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:11px;font-weight:800;background:rgba(31,37,68,.1);color:var(--ink2)}
+.flujo-pasos li b{font-size:11.5px;color:var(--ink)}
+.flujo-pasos li small{font-size:10.5px;color:var(--ink3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.flujo-pasos li.ok i{background:var(--green);color:#fff}
+.flujo-pasos li.next{background:rgba(99,102,241,.1);box-shadow:inset 0 0 0 1px rgba(99,102,241,.35)}
+.flujo-pasos li.next i{background:var(--indigo);color:#fff}
+.flujo-zpm018{display:flex;align-items:center;gap:8px;margin-top:10px;font-size:12px;color:var(--ink2)}
+@media (max-width:820px){.flujo-pasos{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.cuadre-sap{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;padding:10px 16px;margin:10px 0;border-radius:var(--r2);background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.25);font-size:12.5px;color:var(--ink)}
+.cuadre-sap .cuadre-total b{color:var(--green)}
+.cuadre-sap .cuadre-omit{color:#b45309;font-weight:600}
+.cuadre-sap .cuadre-hint{color:var(--ink3);font-size:11px;flex-basis:100%}
+.odm-buscar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--glass);border:1px solid var(--glass-b);border-radius:var(--r);box-shadow:var(--sh);padding:10px 16px;margin-bottom:12px}
+.odm-buscar label{font-size:11px;font-weight:800;color:var(--ink2);text-transform:uppercase;letter-spacing:.04em}
+.odm-buscar input{width:200px;min-height:38px;border-radius:11px;padding:8px 11px;font-weight:600}
+.odm-buscar .hint{font-size:11.5px;color:var(--ink3)}
 </style>
 </head>
 <body>
@@ -2430,6 +2452,8 @@ const HEADER_FIELDS = [
   {key:'Nivel de Tensión', label:'Nivel de tensión'},
   {key:'Inspector Pluz', label:'Inspector Pluz'},
   {key:'Código Interno', label:'Código interno'},
+  {key:'Elemento PEP', label:'Elemento PEP'},
+  {key:'Finalidad', label:'Finalidad'},
   {key:'Distrito', label:'Distrito'},
 ];
 
@@ -2446,9 +2470,12 @@ function handlePresupuestoFile(file){
 
       const servicios = [];
       const materiales = [];
+      const omitidas = [];
       rows.forEach(r=>{
         const codigo = String(r['Material']||'').trim();
         if(!codigo) return;
+        // Las posiciones "S21..." de ZPM010 repiten un servicio con precio 0: no se liquidan.
+        if(!/^\d/.test(codigo)){ omitidas.push(codigo); return; }
         const item = {
           codigo,
           desc: r['Texto del Material']||'',
@@ -2458,8 +2485,11 @@ function handlePresupuestoFile(file){
           precioTotal: Number(r['Precio'])||0,
           cantEjecutada: '',
         };
-        if(codigo.startsWith('2')) servicios.push(item);
-        else if(codigo.startsWith('1')) materiales.push(item);
+        // "Tipo de Pos (Mat o Serv)": N = servicio, L = material. Sin esa columna, el prefijo del código.
+        const tipo = String(r['Tipo de Pos (Mat o Serv)']||'').trim().toUpperCase();
+        const esServicio = tipo ? tipo === 'N' : codigo.startsWith('2');
+        if(esServicio) servicios.push(item);
+        else if(tipo || codigo.startsWith('1')) materiales.push(item);
       });
 
       if(servicios.length===0 && materiales.length===0){
@@ -2471,7 +2501,17 @@ function handlePresupuestoFile(file){
       const header = {};
       HEADER_FIELDS.forEach(f=> header[f.key] = first[f.key]);
 
-      STATE.presupuesto = { header, servicios, materiales };
+      // Si se indicó una ODM a ubicar, el archivo debe ser de esa misma ODM.
+      const odmArchivo = String(header['ODM Presupuestada'] || '').trim().replace(/^0+/, '');
+      const odmBuscada = String(STATE.presupuesto.odmBuscada || '').trim().replace(/^0+/, '');
+      if(odmBuscada && odmArchivo && odmBuscada !== odmArchivo){
+        if(!confirm(`La ODM indicada (${STATE.presupuesto.odmBuscada}) no coincide con la del archivo (${header['ODM Presupuestada']}). ¿Importar de todos modos?`)) return;
+      }
+      STATE.presupuesto = {
+        header, servicios, materiales, omitidas,
+        odmBuscada: STATE.presupuesto.odmBuscada || String(header['ODM Presupuestada'] || ''),
+        archivo: file.name, importadoEn: new Date().toISOString(),
+      };
       saveState();
       renderAll();
     }catch(err){
@@ -2491,11 +2531,26 @@ function renderPresupuestoPanel(){
   head.innerHTML = `
     <div>
       <h2>Presupuesto de la ODM → Liquidación de Servicios y Materiales</h2>
-      <p>Importa el export de SAP (código de Material: "2..." = servicio, "1..." = material). De ahí se arma la liquidación: cantidad presupuestada vs. cantidad ejecutada.</p>
+      <p>Importa el export de ZPM010 (Tipo de Pos: N = servicio, L = material; las posiciones "S…" con precio 0 se omiten). De ahí se arma la liquidación: cantidad presupuestada vs. cantidad ejecutada.</p>
     </div>
     <div class="panel-actions">
       ${st.header ? '<button class="btn btn-outline btn-small" id="btn-export-presu">⬇ Exportar liquidación CSV</button><button class="btn btn-danger btn-small" id="btn-clear-presu">✕ Quitar presupuesto</button>' : ''}
     </div>`;
+  panel.appendChild(renderFlujoLiquidacion());
+
+  // Cuadro de texto previo: ODM a ubicar en el export de SAP (ZPM010).
+  const odmBox = document.createElement('div');
+  odmBox.className = 'odm-buscar';
+  odmBox.innerHTML = `
+    <label for="odm-buscar">ODM a ubicar</label>
+    <input id="odm-buscar" type="text" inputmode="numeric" placeholder="Ej: 800012633" value="${String(st.odmBuscada || '').replace(/"/g, '&quot;')}">
+    <span class="hint">Se compara con la ODM del archivo que importes.</span>`;
+  panel.appendChild(odmBox);
+  odmBox.querySelector('#odm-buscar').onchange = (e)=>{
+    STATE.presupuesto.odmBuscada = e.target.value.trim();
+    saveState();
+  };
+
   panel.appendChild(head);
   if(st.header){
     head.querySelector('#btn-export-presu').onclick = exportPresupuestoCSV;
@@ -2510,7 +2565,8 @@ function renderPresupuestoPanel(){
   upload.className = 'upload-box';
   upload.innerHTML = `
     <p>📥 ${st.header ? 'Reemplazar con otro archivo de presupuesto (.xlsx)' : 'Arrastra o selecciona el export del presupuesto (.xlsx)'}</p>
-    <p class="hint">Debe tener la hoja "Data" con las columnas de SAP (Material, Texto del Material, Cantidad presupuestada, Precio...)</p>
+    <p class="hint">En SAP (ZPM010): Monitor → filtra la Orden → sin seleccionar la fila, <b>Presupuesto Obras</b> → ODM de Presupuesto → Ejecutar → doble clic en el ppto → Exportar → <b>Hoja de cálculo</b> (.xlsx).</p>
+    <p class="hint">El archivo trae la hoja "Data" con Material, Tipo de Pos, Cantidad presupuestada, Precio, ODM Presupuestada…</p>
     <button class="btn btn-primary btn-small" id="btn-pick-file" style="margin-top:8px;">Elegir archivo</button>
     <input type="file" id="presu-file" accept=".xlsx,.xls" />`;
   panel.appendChild(upload);
@@ -2543,6 +2599,7 @@ function renderPresupuestoPanel(){
     chips.appendChild(c);
   });
   panel.appendChild(chips);
+  panel.appendChild(renderCuadreSap(st));
 
   panel.appendChild(renderBudgetSection('Servicios', st.servicios, 'code-serv'));
   panel.appendChild(renderBudgetSection('Materiales', st.materiales, 'code-mat'));
@@ -4303,6 +4360,9 @@ async function autoLiquidacion(){
     if(completados) avisos.push(`Se completaron ${completados} cantidad(es) de material con la cantidad de su actividad.`);
 
     generarPreliqPDF();
+    STATE.preliq.generadaEn = new Date().toISOString();
+    STATE.preliq.totalGenerado = r.total;
+    saveState();
 
     const resumen = `Liquidación generada: ${r.ejecutadas} servicio(s) ejecutado(s), total ${fmtS(r.total)}.`;
     if(avisos.length) alert(resumen + '\n\n' + avisos.join('\n'));
@@ -4319,6 +4379,59 @@ async function autoLiquidacion(){
 document.addEventListener('click', (e)=>{
   if(e.target.closest && e.target.closest('#btn-auto-preliq')) autoLiquidacion();
 });
+
+
+/* ---------- Cuadre del presupuesto importado contra los montos de SAP ---------- */
+function renderCuadreSap(st){
+  const suma = (arr)=> arr.reduce((a, i)=> a + (Number(i.precioTotal) || 0), 0);
+  const ts = suma(st.servicios), tm = suma(st.materiales);
+  const om = (st.omitidas || []).length;
+  const box = document.createElement('div');
+  box.className = 'cuadre-sap';
+  box.innerHTML = `
+    <span>Servicios <b>${st.servicios.length}</b> · ${fmtS(ts)}</span>
+    <span>Materiales <b>${st.materiales.length}</b> · ${fmtS(tm)}</span>
+    <span class="cuadre-total">Total presupuestado <b>${fmtS(ts + tm)}</b></span>
+    ${om ? `<span class="cuadre-omit" title="${(st.omitidas || []).join(', ')}">${om} posición(es) "S…" con precio 0 omitidas</span>` : ''}
+    <span class="cuadre-hint">Debe coincidir con Monto Plan, Mnt Plan S y Mnt Plan M del monitor ZPM010.</span>`;
+  return box;
+}
+
+/* ---------- Flujo completo: ODM → ZPM010 → asociación → detalle → liquidación → ZPM018 ---------- */
+function pasosLiquidacion(){
+  const p = STATE.presupuesto || {};
+  const asociadas = SHEETS.some(sh=> isFichaHabilitada(sh));
+  const conDetalle = SHEETS.some(sh=> (STATE[sh.key] && STATE[sh.key].vias || []).length > 0);
+  const pre = STATE.preliq || {};
+  return [
+    { k:'odm',      t:'ODM indicada',             ok: !!p.odmBuscada,     tab:'presupuesto', d: p.odmBuscada || 'Escribe la ODM a ubicar' },
+    { k:'zpm010',   t:'Presupuesto ZPM010',       ok: !!p.header,         tab:'presupuesto', d: p.header ? `${p.servicios.length} serv. · ${p.materiales.length} mat.` : 'Importa el export .xlsx' },
+    { k:'asociar',  t:'Materiales asociados',     ok: asociadas,          tab:'asociar',     d: asociadas ? 'Fichas habilitadas' : 'Asocia actividades y materiales' },
+    { k:'detalle',  t:'Detalle ejecutado',        ok: conDetalle,         tab: (SHEETS.find(sh=> isFichaHabilitada(sh)) || {}).key || 'asociar', d: conDetalle ? 'Vías registradas' : 'Registra vías y actividades' },
+    { k:'liq',      t:'Liquidación generada',     ok: !!pre.generadaEn,   tab:'preliq',      d: pre.generadaEn ? fmtS(pre.totalGenerado) : '⚡ Liquidación automática' },
+    { k:'zpm018',   t:'Aprobada en ZPM018',       ok: !!pre.aprobadaZpm018, tab:'presupuesto', d: pre.aprobadaZpm018 ? 'Marcada como aprobada' : 'Aprobar preliquidación en SAP' },
+  ];
+}
+function renderFlujoLiquidacion(){
+  const pasos = pasosLiquidacion();
+  const sig = pasos.findIndex(x=> !x.ok);
+  const box = document.createElement('div');
+  box.className = 'flujo';
+  box.innerHTML = `<div class="flujo-head"><b>Proceso de liquidación</b><span>${sig < 0 ? 'Completo' : 'Siguiente: ' + pasos[sig].t}</span></div>
+    <ol class="flujo-pasos">${pasos.map((x, i)=> `
+      <li class="${x.ok ? 'ok' : (i === sig ? 'next' : '')}" data-tab="${x.tab}">
+        <i>${x.ok ? '✓' : i + 1}</i><b>${x.t}</b><small>${x.d}</small>
+      </li>`).join('')}</ol>
+    <label class="flujo-zpm018"><input type="checkbox" ${STATE.preliq && STATE.preliq.aprobadaZpm018 ? 'checked' : ''}> Ya aprobé la preliquidación en ZPM018</label>`;
+  box.querySelectorAll('li[data-tab]').forEach(li=>{
+    li.onclick = ()=>{ activeTab = li.dataset.tab; renderAll(); };
+  });
+  box.querySelector('.flujo-zpm018 input').onchange = (e)=>{
+    STATE.preliq.aprobadaZpm018 = e.target.checked;
+    saveState(); renderAll();
+  };
+  return box;
+}
 
 /* ============================================================================
    Chispi: la mascota (mismo diseño y comportamiento que en obras)
@@ -4416,7 +4529,8 @@ const chispi = {
 Object.assign(chispi, {
   greet(){
     const r = resumenLiquidacion();
-    this.say('Resumen de hoy', `Hay <b>${r.ejecutadas}</b> servicio(s) ejecutado(s) por <b>${fmtS(r.total)}</b> en la liquidación actual.`, '#f59e0b', null, 7000, 'f_feliz', 'p_celebra');
+    const sig = pasosLiquidacion().find(x=> !x.ok);
+    this.say('Resumen de hoy', `Hay <b>${r.ejecutadas}</b> servicio(s) ejecutado(s) por <b>${fmtS(r.total)}</b>. ${sig ? 'Siguiente paso: <b>' + sig.t + '</b>.' : '¡Proceso completo!'}`, '#f59e0b', null, 8000, 'f_feliz', 'p_celebra');
   },
   insight(){
     const r = resumenLiquidacion();
