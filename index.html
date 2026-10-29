@@ -743,6 +743,13 @@ nav.tabs{max-width:1440px}
 .note{background:#fff !important;border:1px solid var(--line2) !important;color:var(--ink2) !important;border-radius:var(--r2) !important}
 footer{max-width:1440px;margin:0 auto}
 .header-chips .chip,.header-chips .chip b{font-family:var(--f) !important;font-variant-numeric:tabular-nums}
+
+.alv tbody tr{cursor:default}
+.alv tbody tr.alv-fila-sel td{background:#e9ecff !important}
+.alv tbody tr.alv-fila-sel td:first-child{box-shadow:inset 3px 0 0 var(--indigo) !important}
+.cuadre-sync{font-size:11px;font-weight:600;color:var(--ink3);text-transform:none;letter-spacing:0;margin-left:8px}
+.alv td input:not([type=checkbox]),.alv td select{background:transparent !important;border:1px solid #dfe3ec !important;box-shadow:none !important}
+.alv td input:not([type=checkbox]):focus,.alv td select:focus{background:#fff !important;border-color:var(--indigo) !important}
 </style>
 </head>
 <body>
@@ -964,10 +971,55 @@ function buildCuadrePayload(){
 // de una cantidad ejecutada, igual que antes hacía renderAll() localmente.
 let CUADRE_CACHE = null;
 
+// Firma de los datos que usa el servidor: el cuadre solo se recalcula si cambian.
+let CUADRE_FIRMA = null, CUADRE_EN_CURSO = false, CUADRE_PENDIENTE = false;
+function firmaCuadre(){ try{ return JSON.stringify(buildCuadrePayload()); }catch(_){ return String(Date.now()); } }
 async function refrescarCuadreDesdeServidor(){
+  const firma = firmaCuadre();
   const data = await llamarServidor('calcularCuadre', { payload: buildCuadrePayload() });
   CUADRE_CACHE = data; // { materiales, autoColumns, autoQty, totales }
+  CUADRE_FIRMA = firma;
   return data;
+}
+function marcarCuadre(texto){
+  const h = cuadrePanel && cuadrePanel.querySelector('.panel-head');
+  if(!h) return;
+  let e = h.querySelector('#cuadre-sync');
+  if(!e){ e = document.createElement('span'); e.id = 'cuadre-sync'; e.className = 'cuadre-sync'; (h.querySelector('h2') || h).appendChild(e); }
+  e.textContent = texto || '';
+}
+// Recalcula en segundo plano SIN borrar la tabla; repinta solo si el resultado cambió.
+function cuadreActualizarSilencioso(){
+  clearTimeout(cuadreActualizarSilencioso._t);
+  cuadreActualizarSilencioso._t = setTimeout(async ()=>{
+    if(CUADRE_EN_CURSO){ CUADRE_PENDIENTE = true; return; }
+    if(!CUADRE_CACHE || firmaCuadre() === CUADRE_FIRMA) return;
+    CUADRE_EN_CURSO = true;
+    marcarCuadre('· actualizando totales…');
+    const antes = JSON.stringify(CUADRE_CACHE);
+    try{ await refrescarCuadreDesdeServidor(); }
+    catch(err){ CUADRE_EN_CURSO = false; marcarCuadre('· no se pudo actualizar: ' + err.message); return; }
+    CUADRE_EN_CURSO = false;
+    if(JSON.stringify(CUADRE_CACHE) !== antes && activeTab === 'cuadre') aplicarCuadre();
+    else marcarCuadre('');
+    if(CUADRE_PENDIENTE){ CUADRE_PENDIENTE = false; cuadreActualizarSilencioso(); }
+  }, 500);
+}
+// Repinta el cuadre conservando el desplazamiento; si el usuario está escribiendo, espera a que termine.
+function aplicarCuadre(){
+  const act = document.activeElement;
+  if(act && cuadrePanel.contains(act) && /^(INPUT|SELECT|TEXTAREA)$/.test(act.tagName)){
+    cuadrePanel.addEventListener('focusout', ()=> setTimeout(aplicarCuadre, 60), { once: true });
+    return;
+  }
+  const sc = cuadrePanel.querySelector('.alv-scroll');
+  const pos = sc ? [sc.scrollLeft, sc.scrollTop] : null, y = window.scrollY;
+  renderCuadrePanel();
+  setTimeout(()=>{
+    const sc2 = cuadrePanel.querySelector('.alv-scroll');
+    if(sc2 && pos){ sc2.scrollLeft = pos[0]; sc2.scrollTop = pos[1]; }
+    window.scrollTo(0, y);
+  }, 40);
 }
 
 /* ---------- Utilidades numéricas / fórmulas de "Embebido" y "Resane" ---------- */
@@ -1196,7 +1248,7 @@ tabsEl.appendChild(presupuestoTabBtn);
 const cuadreTabBtn = document.createElement('button');
 cuadreTabBtn.textContent = '🧮 Cuadre Materiales';
 cuadreTabBtn.dataset.key = 'cuadre';
-cuadreTabBtn.onclick = ()=>{ activeTab = 'cuadre'; CUADRE_CACHE = null; renderAll(); };
+cuadreTabBtn.onclick = ()=>{ activeTab = 'cuadre'; renderAll(); };
 tabsEl.appendChild(cuadreTabBtn);
 
 const asociarTabBtn = document.createElement('button');
@@ -3000,7 +3052,6 @@ function addCuadreColumn(){
   const col = { id:uid(), name:'Frente '+(STATE.cuadre.columns.length+1) };
   STATE.cuadre.columns.push(col);
   STATE.cuadre.ejec[col.id] = {};
-  CUADRE_CACHE = null;
   saveState();
   renderAll();
 }
@@ -3008,7 +3059,6 @@ function removeCuadreColumn(id){
   if(!confirm('¿Quitar esta columna y las cantidades ejecutadas registradas en ella?')) return;
   STATE.cuadre.columns = STATE.cuadre.columns.filter(c=>c.id!==id);
   delete STATE.cuadre.ejec[id];
-  CUADRE_CACHE = null;
   saveState();
   renderAll();
 }
@@ -3056,7 +3106,6 @@ function addExtraMaterial(codigo, desc, unidad, precio){
   STATE.cuadre.extraMateriales.push({
     id:uid(), codigo, desc:String(desc||'').trim(), unidad:String(unidad||'').trim(), precioUnit:Number(precio)||0,
   });
-  CUADRE_CACHE = null;
   saveState();
   renderAll();
   return true;
@@ -3064,7 +3113,6 @@ function addExtraMaterial(codigo, desc, unidad, precio){
 function removeExtraMaterial(id){
   if(!confirm('¿Quitar este material adicional?')) return;
   STATE.cuadre.extraMateriales = STATE.cuadre.extraMateriales.filter(m=>m.id!==id);
-  CUADRE_CACHE = null;
   saveState();
   renderAll();
 }
@@ -3151,6 +3199,7 @@ function renderCuadrePanel(){
   // cálculo fresco en caché, lo pedimos ahora: mostramos un estado de carga,
   // y cuando llega la respuesta nos volvemos a invocar para pintar la tabla
   // real. Nada de lo que se ve mientras tanto se calculó en el navegador.
+  if(CUADRE_CACHE && firmaCuadre() !== CUADRE_FIRMA) setTimeout(cuadreActualizarSilencioso, 0);
   if(!CUADRE_CACHE){
     const loading = document.createElement('div');
     loading.className = 'empty-state';
@@ -3326,7 +3375,7 @@ function renderCuadrePanel(){
       // navegador. Al salir del campo (blur) se invalida la caché y se le
       // pide al servidor el recálculo real antes de repintar la tabla.
       input.oninput = ()=>{ setEjec(col.id, m.codigo, input.value); };
-      input.onblur = ()=>{ CUADRE_CACHE = null; renderAll(); };
+      input.onblur = ()=> cuadreActualizarSilencioso();
       td.appendChild(input);
       tr.appendChild(td);
     });
@@ -5121,6 +5170,17 @@ function liqExportarCSV(){
 const ALV_STORAGE = 'cobra_alv_v1';
 const ALV_FILTROS = {};        // filtros por tabla, mientras la página esté abierta
 const ALV_BUSQUEDA = {};
+const ALV_SEL = {};            // fila seleccionada por tabla (se conserva al repintar)
+function alvIdFila(tr){
+  const c = [...tr.cells].filter(x=> x.dataset.alvC !== undefined).sort((a, b)=> a.dataset.alvC - b.dataset.alvC).slice(0, 3);
+  return c.map(alvTextoCelda).join('¦');
+}
+function alvReaplicarSeleccion(st){
+  const id = ALV_SEL[st.clave]; if(!id) return;
+  [...st.table.tBodies].forEach(tb=> alvGrupos(tb).forEach(g=>{
+    if(g[0].dataset.alvTipo === 'fila' && alvIdFila(g[0]) === id) g.forEach(r=> r.classList.add('alv-fila-sel'));
+  }));
+}
 let ALV_LAYOUTS = {};
 try{ ALV_LAYOUTS = JSON.parse(localStorage.getItem(ALV_STORAGE) || '{}') || {}; }catch(_){ ALV_LAYOUTS = {}; }
 function alvGuardar(){ try{ localStorage.setItem(ALV_STORAGE, JSON.stringify(ALV_LAYOUTS)); }catch(_){} }
@@ -5515,6 +5575,18 @@ function alvMejorar(table){
       if(id && id !== c.id){ e.preventDefault(); alvMoverColumna(st, id, c.id); }
     });
   });
+
+  // Clic en cualquier celda: selecciona la fila completa (con sus sub-filas).
+  table.addEventListener('click', (e)=>{
+    const tr = e.target.closest('tr');
+    if(!tr || !tr.parentNode || tr.parentNode.tagName !== 'TBODY' || tr.closest('table') !== table) return;
+    const grupo = alvGrupos(tr.parentNode).find(g=> g.includes(tr));
+    if(!grupo) return;
+    table.querySelectorAll('tr.alv-fila-sel').forEach(r=> r.classList.remove('alv-fila-sel'));
+    grupo.forEach(r=> r.classList.add('alv-fila-sel'));
+    ALV_SEL[st.clave] = alvIdFila(grupo[0]);
+  });
+  alvReaplicarSeleccion(st);
 
   // Filas que la app agrega o reemplaza después (pies, materiales): se acomodan solas.
   new MutationObserver(()=>{ if(alvProcesarFilas(st)) alvAplicar(st, false); })
