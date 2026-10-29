@@ -657,6 +657,92 @@ main{max-width:none;padding-left:18px;padding-right:18px}
 .liq-quitar{border:0;background:none;color:var(--ink3);cursor:pointer;font-size:12px}
 .liq-quitar:hover{color:#e11d48}
 @media (max-width:1100px){.liq-kpis{grid-template-columns:repeat(3,minmax(0,1fr))}}
+/* ===== Diseño compacto y simétrico (PC) =====
+   Escala única: radio 10px · separación 8/12px · controles 30px (en grillas 24px) · texto 12px */
+:root{--r:14px;--r2:10px}
+body{font-size:12.5px}
+main{max-width:1440px;margin:0 auto;padding:12px 16px 120px}
+header{margin:8px 16px 0;padding:8px 14px;border-radius:16px}
+header h1{font-size:14px}
+header p{font-size:10.5px}
+.logo{width:34px;height:34px;border-radius:11px}
+nav.tabs{padding:8px 16px 0;gap:4px;max-width:1440px;margin:0 auto}
+nav.tabs button{padding:6px 11px;font-size:11.5px;border-radius:9px}
+.btn{min-height:30px;padding:5px 11px;font-size:11.5px;border-radius:9px;gap:5px}
+.btn-small{min-height:28px;padding:4px 10px;font-size:11px}
+input,select,textarea{font-size:12px}
+main input:not([type=checkbox]):not([type=radio]),main select{min-height:30px;padding:4px 9px;border-radius:9px}
+.panel-head{padding:10px 14px;margin-bottom:10px;border-radius:var(--r)}
+.panel-head h2{font-size:13px;margin-bottom:2px}
+.panel-head p{font-size:11.5px;line-height:1.45}
+.panel-actions{gap:6px}
+.budget-section{padding:10px 12px;margin-bottom:10px;border-radius:var(--r)}
+.budget-section h3{font-size:12px;margin:0 0 6px}
+.pill-count,.qty-pill{font-size:10px;padding:1px 7px}
+.note,.empty-state{font-size:11.5px;padding:10px 12px}
+.upload-box{padding:12px;border-radius:var(--r)}
+.upload-box p{margin:2px 0;font-size:11.5px}
+.header-chips{gap:6px;margin:8px 0}
+.chip{font-size:11px;padding:3px 9px}
+.odm-buscar{padding:8px 12px;gap:8px;margin-bottom:10px;border-radius:var(--r)}
+.odm-buscar input{width:170px;min-height:30px !important}
+.cuadre-sap{padding:8px 12px;margin:8px 0;font-size:12px}
+.flujo{padding:10px 12px;margin-bottom:10px;border-radius:var(--r)}
+.flujo-head{margin-bottom:8px;font-size:12px}
+.flujo-pasos{gap:6px}
+.flujo-pasos li{padding:6px 8px;border-radius:10px}
+.flujo-pasos li i{width:18px;height:18px;font-size:10px}
+.flujo-pasos li b{font-size:11px}
+.flujo-pasos li small{font-size:10px}
+.flujo-zpm018{margin-top:8px;font-size:11.5px}
+.assoc-resumen{padding:8px 12px;margin-bottom:10px;font-size:12px}
+.sheet-select-row{gap:6px;margin-bottom:10px}
+.sheet-select-btn{padding:5px 11px;font-size:11px;border-radius:9px}
+
+/* Grillas ALV: filas bajas y uniformes */
+.alv{margin:6px 0 10px;border-radius:10px}
+.alv-barra{padding:3px 6px;gap:1px}
+.alv-barra button{padding:3px 7px;font-size:11px;border-radius:7px}
+.alv-sep{height:14px;margin:0 3px}
+.alv-info{font-size:10.5px}
+.alv-buscar{width:180px;min-height:26px !important;padding:3px 9px !important;font-size:11.5px !important;border-radius:7px !important}
+.alv-scroll{max-height:calc(100vh - 220px)}
+.alv table{font-size:11.5px}
+.alv th,.alv td{padding:3px 8px !important;line-height:1.3;height:26px;max-width:340px}
+.alv thead th{font-size:10.5px !important;height:28px}
+.alv td input,.alv td select{min-height:22px !important;height:22px;padding:1px 6px !important;font-size:11.5px !important;border-radius:6px !important}
+.alv td .btn,.alv td button{min-height:22px;padding:1px 7px;font-size:10.5px}
+.alv td input[type=checkbox]{width:14px;height:14px}
+.lmd-table .liq-in{width:72px}
+.lmd-table .liq-in.liq-obs{width:130px}
+
+/* Liquidación */
+.liq-subtabs{margin-bottom:10px;padding:3px}
+.liq-subtabs button{padding:6px 13px;font-size:11.5px;border-radius:8px}
+.liq-grupo{padding:10px 14px 12px;margin-bottom:10px;border-radius:var(--r)}
+.liq-grupo h3{font-size:11px;margin-bottom:8px}
+.liq-campos{grid-template-columns:repeat(6,minmax(0,1fr));gap:8px 12px}
+.liq-campo>span{font-size:10px}
+.liq-campo input,.liq-campo select,.liq-auto-val{min-height:30px !important;height:30px;font-size:12px;padding:4px 9px;border-radius:9px}
+.liq-campo small{font-size:10px;line-height:1.3}
+.liq-kpis{gap:8px;margin-bottom:10px}
+.liq-kpis div{padding:8px 12px;border-radius:var(--r2)}
+.liq-kpis span{font-size:10px}
+.liq-kpis b{font-size:15px}
+.liq-conf{padding:7px 12px;gap:8px 18px;margin-bottom:10px;font-size:11.5px}
+.liq-conf input{min-height:28px !important;width:100px}
+.liq-conf .liq-add input{width:150px}
+.liq-avisos{padding:8px 12px;margin-bottom:10px;font-size:11.5px;gap:3px}
+@media (max-width:1280px){.liq-campos{grid-template-columns:repeat(4,minmax(0,1fr))}}
+
+/* Chispi un poco más pequeño */
+.pet{width:44px;height:54px}
+
+header{max-width:1408px;margin:8px auto 0 !important}
+nav.tabs{max-width:1440px}
+.note{background:#fff !important;border:1px solid var(--line2) !important;color:var(--ink2) !important;border-radius:var(--r2) !important}
+footer{max-width:1440px;margin:0 auto}
+.header-chips .chip,.header-chips .chip b{font-family:var(--f) !important;font-variant-numeric:tabular-nums}
 </style>
 </head>
 <body>
@@ -4851,7 +4937,7 @@ function renderLiqObra(panel, v){
     g.campos.forEach(c=>{
       const auto = c.auto ? c.auto((x)=> liqValor(x)) : '';
       const propio = o[c.k] !== undefined && String(o[c.k] ?? '').trim() !== '';
-      const val = c.soloAuto ? auto : (propio ? o[c.k] : '');
+      const val = c.soloAuto ? auto : (propio ? o[c.k] : (c.tipo === 'date' ? auto : ''));
       const f = document.createElement('label');
       f.className = 'liq-campo' + (c.ancho === 2 ? ' ancho2' : '');
       let ctrl;
@@ -4875,7 +4961,7 @@ function renderLiqObra(panel, v){
     el.onchange = ()=>{
       const k = el.dataset.k, c = LIQ_CAMPOS[k];
       let val = el.value;
-      if(c.tipo === 'select' && String(val) === String(c.auto ? c.auto((x)=> liqValor(x)) : '')) val = '';
+      if((c.tipo === 'select' || c.tipo === 'date') && String(val) === String(c.auto ? c.auto((x)=> liqValor(x)) : '')) val = '';
       if(String(val).trim() === '') delete liqObra()[k]; else liqObra()[k] = val;
       saveState(); renderAll();
     };
