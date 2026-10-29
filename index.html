@@ -578,6 +578,51 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--indigo);
 .odm-buscar label{font-size:11px;font-weight:800;color:var(--ink2);text-transform:uppercase;letter-spacing:.04em}
 .odm-buscar input{width:200px;min-height:38px;border-radius:11px;padding:8px 11px;font-weight:600}
 .odm-buscar .hint{font-size:11.5px;color:var(--ink3)}
+
+/* ===== Grilla tipo SAP (ALV): un solo fondo, ajustada al ancho del PC ===== */
+main{max-width:none;padding-left:18px;padding-right:18px}
+.alv{background:#fff;border:1px solid var(--line2);border-radius:12px;overflow:hidden;margin:8px 0 14px;box-shadow:0 4px 14px -10px rgba(30,41,90,.25)}
+.alv-barra{display:flex;align-items:center;gap:2px;flex-wrap:wrap;padding:5px 8px;border-bottom:1px solid var(--line2);background:#fff}
+.alv-barra button{display:inline-flex;align-items:center;gap:5px;border:1px solid transparent;background:none;border-radius:8px;padding:5px 8px;font:600 11.5px var(--f);color:var(--ink2);cursor:pointer;min-height:0;box-shadow:none}
+.alv-barra button:hover{background:rgba(99,102,241,.08);border-color:rgba(99,102,241,.25);color:var(--indigo)}
+.alv-sep{width:1px;height:18px;background:var(--line2);margin:0 4px}
+.alv-info{font-size:11px;color:var(--ink3);white-space:nowrap;margin-left:8px}
+.alv-info b{color:var(--indigo)}
+.alv-buscar{margin-left:auto;width:220px;min-height:30px !important;padding:5px 10px !important;font-size:12px !important;border-radius:8px !important}
+.alv-scroll{overflow:auto;max-height:calc(100vh - 240px)}
+.alv table{width:100% !important;min-width:100%;border-collapse:separate !important;border-spacing:0;font-size:12px;margin:0 !important;background:#fff !important;border:0 !important;border-radius:0 !important}
+.alv table,.alv th,.alv td,.alv td input{font-family:var(--f) !important;font-variant-numeric:tabular-nums}
+.alv tr,.alv th,.alv td{background:#fff !important;background-image:none !important;box-shadow:none !important}
+.alv th,.alv td{position:static !important;left:auto !important;right:auto !important;padding:6px 10px !important;border:0 !important;border-bottom:1px solid #edf0f5 !important;white-space:nowrap;max-width:420px;overflow:hidden;text-overflow:ellipsis;color:var(--ink);vertical-align:middle}
+.alv thead th{position:sticky !important;top:0;z-index:3;background:#f5f6fa !important;color:var(--ink2) !important;font-size:11px !important;font-weight:700;text-transform:none !important;letter-spacing:0 !important;border-bottom:1px solid var(--line2) !important;cursor:pointer;user-select:none}
+.alv thead th:hover{color:var(--indigo) !important}
+.alv tfoot td{font-weight:700;border-top:1px solid var(--line2) !important;border-bottom:0 !important}
+.alv .alv-fija{position:sticky !important;left:0;z-index:2;box-shadow:1px 0 0 #e3e7ef !important}
+.alv thead th.alv-fija{top:0;z-index:4}
+.alv thead th.alv-sel{background:#e9ebfb !important;color:var(--indigo) !important;box-shadow:inset 0 -2px 0 var(--indigo) !important}
+.alv thead th.alv-asc::after{content:" ▲";font-size:9px;color:var(--indigo)}
+.alv thead th.alv-desc::after{content:" ▼";font-size:9px;color:var(--indigo)}
+.alv thead th.alv-con-filtro::before{content:"⛉ ";color:var(--indigo)}
+.alv thead th.alv-drop{box-shadow:inset 3px 0 0 var(--indigo) !important}
+.alv .alv-oculta{display:none !important}
+.alv tr.alv-filtrada{display:none !important}
+.alv td input,.alv td select{background:#fff !important;min-height:28px;padding:3px 6px;font-size:12px;border-radius:7px}
+#alv-menu{position:fixed;z-index:1000;background:#fff;border:1px solid var(--line2);border-radius:12px;box-shadow:0 14px 34px -12px rgba(30,41,90,.4);padding:6px;min-width:220px;max-width:360px;font:12px var(--f);color:var(--ink)}
+#alv-menu .alv-menu-tit{font-weight:800;font-size:11px;color:var(--ink3);padding:6px 10px;text-transform:uppercase;letter-spacing:.04em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#alv-menu button.it{display:block;width:100%;text-align:left;background:none;border:0;padding:7px 10px;border-radius:7px;cursor:pointer;font:600 12px var(--f);color:var(--ink)}
+#alv-menu button.it:hover{background:rgba(99,102,241,.08);color:var(--indigo)}
+#alv-menu .alv-filtro-buscar{width:100%;min-height:30px;padding:5px 9px;margin:2px 0 4px;font-size:12px;border-radius:8px}
+#alv-menu .alv-filtro-lista,#alv-menu .alv-cols{max-height:300px;overflow:auto;border-top:1px solid #edf0f5;border-bottom:1px solid #edf0f5;margin:4px 0}
+#alv-menu .alv-chk{display:flex;align-items:center;gap:8px;padding:5px 8px;border-radius:6px;cursor:pointer;white-space:nowrap}
+#alv-menu .alv-chk:hover{background:#f5f6fa}
+#alv-menu .alv-chk span{flex:1;overflow:hidden;text-overflow:ellipsis}
+#alv-menu .alv-chk em{font-style:normal;color:var(--ink3);font-size:11px}
+#alv-menu .alv-col-fila{display:flex;align-items:center;gap:2px}
+#alv-menu .alv-col-fila .alv-chk{flex:1;min-width:0}
+#alv-menu .alv-col-fila button{border:0;background:none;color:var(--ink3);cursor:pointer;padding:4px 6px;border-radius:6px;font-size:10px}
+#alv-menu .alv-col-fila button:hover:not(:disabled){background:#eef0ff;color:var(--indigo)}
+#alv-menu .alv-col-fila button:disabled{opacity:.25;cursor:default}
+#alv-menu .alv-menu-pie{display:flex;justify-content:flex-end;gap:6px;padding:6px 4px 2px}
 </style>
 </head>
 <body>
@@ -3175,7 +3220,7 @@ function renderCuadrePanel(){
 
   const note = document.createElement('div');
   note.className = 'note';
-  note.textContent = 'Fila resaltada = material que aparece en Salidas/Devoluciones pero no estaba en el presupuesto importado. Usa "+ Columna" para agregar un frente/actividad y registrar la cantidad ejecutada de cada material; Código, Material, Total Ejecutado e Importe se mantienen visibles al desplazarte entre columnas.';
+  note.textContent = 'Código en rojo = material que aparece en Salidas/Devoluciones pero no estaba en el presupuesto importado. Usa "+ Columna" para agregar un frente/actividad y registrar la cantidad ejecutada de cada material; Código, Material, Total Ejecutado e Importe se mantienen visibles al desplazarte entre columnas.';
   panel.appendChild(note);
 }
 
@@ -4481,6 +4526,421 @@ function renderFlujoLiquidacion(){
   };
   return box;
 }
+
+
+/* ============================================================================
+   Grilla tipo SAP (ALV) para todas las tablas de la app
+   Clasificar ▲▼, fijar filtro, buscar, mostrar/ocultar y mover columnas,
+   disposición guardada por tabla. Las sub-filas (materiales de una actividad,
+   filas con colspan) se mueven junto a su fila principal.
+   ============================================================================ */
+const ALV_STORAGE = 'cobra_alv_v1';
+const ALV_FILTROS = {};        // filtros por tabla, mientras la página esté abierta
+const ALV_BUSQUEDA = {};
+let ALV_LAYOUTS = {};
+try{ ALV_LAYOUTS = JSON.parse(localStorage.getItem(ALV_STORAGE) || '{}') || {}; }catch(_){ ALV_LAYOUTS = {}; }
+function alvGuardar(){ try{ localStorage.setItem(ALV_STORAGE, JSON.stringify(ALV_LAYOUTS)); }catch(_){} }
+
+function alvTextoCelda(td){
+  if(!td) return '';
+  const campo = td.querySelector('input:not([type=checkbox]):not([type=hidden]),select,textarea');
+  if(campo) return String(campo.value || '').trim();
+  return (td.textContent || '').replace(/\s+/g, ' ').trim();
+}
+function alvValorOrden(t){
+  if(t === '' || t === '—' || t === '-') return null;
+  const f = t.match(/^(\d{2})[./](\d{2})[./](\d{4})$/);
+  if(f) return Number(f[3] + f[2] + f[1]);
+  const limpio = t.replace(/^S\/\s*/, '').replace(/,/g, '');
+  if(/^-?\d+(\.\d+)?$/.test(limpio)) return Number(limpio);
+  return t.toLowerCase();
+}
+function alvHash(txt){ let h = 0; for(let i = 0; i < txt.length; i++){ h = (h * 31 + txt.charCodeAt(i)) | 0; } return (h >>> 0).toString(36); }
+
+function alvColumnas(table){
+  const vistos = {};
+  return [...table.tHead.rows[0].cells].map((th, i)=>{
+    const inp = th.querySelector('input');
+    const nombre = ((inp ? inp.value : th.textContent) || '').replace(/\s+/g, ' ').trim() || `(columna ${i + 1})`;
+    vistos[nombre] = (vistos[nombre] || 0) + 1;
+    return { i, id: vistos[nombre] > 1 ? `${nombre}#${vistos[nombre]}` : nombre, nombre, th };
+  });
+}
+function alvClave(table, cols){
+  const panel = table.closest('section.panel');
+  return `${panel ? panel.id : 'x'}|${table.classList[0] || 'tabla'}|${alvHash(cols.map(c=> c.id).join('¦'))}`;
+}
+function alvLayout(st){ return ALV_LAYOUTS[st.clave] || (ALV_LAYOUTS[st.clave] = {}); }
+function alvCelda(tr, col){ return [...tr.cells].find(c=> c.dataset.alvC == col.i); }
+
+// Filas de pie con colspan se separan en celdas para poder mover columnas.
+function alvExpandirColspan(tr){
+  [...tr.cells].forEach(c=>{
+    const k = c.colSpan;
+    if(k > 1){ c.colSpan = 1; for(let j = 1; j < k; j++) c.after(document.createElement('td')); }
+  });
+}
+function alvProcesarFilas(st){
+  const n = st.cols.length;
+  let nuevas = false;
+  st.table.querySelectorAll(':scope > tbody > tr, :scope > tfoot > tr').forEach(tr=>{
+    if(tr.dataset.alvF) return;
+    tr.dataset.alvF = '1';
+    nuevas = true;
+    if(tr.parentNode.tagName === 'TFOOT') alvExpandirColspan(tr);
+    const celdas = [...tr.cells];
+    const regular = celdas.length === n && !celdas.some(c=> c.colSpan > 1);
+    const detalle = !regular || tr.classList.contains('row-material');
+    tr.dataset.alvTipo = detalle ? 'detalle' : 'fila';
+    if(regular){
+      celdas.forEach((c, i)=>{
+        c.dataset.alvC = i;
+        if(!c.querySelector('input,select,button,textarea')){
+          const t = alvTextoCelda(c);
+          if(t.length > 24 && !c.title) c.title = t;
+        }
+      });
+    }
+  });
+  return nuevas;
+}
+
+// Orden visible de columnas (índices originales). Columnas nuevas conservan su lugar relativo.
+function alvIndicesVisibles(st){
+  const ids = st.cols.map(c=> c.id);
+  const res = (alvLayout(st).orden || []).filter(id=> ids.includes(id));
+  ids.forEach((id, k)=>{
+    if(res.includes(id)) return;
+    const previo = ids.slice(0, k).reverse().find(x=> res.includes(x));
+    res.splice(previo ? res.indexOf(previo) + 1 : 0, 0, id);
+  });
+  return res.map(id=> st.cols.find(c=> c.id === id).i);
+}
+
+function alvAplicar(st, ordenar){
+  const idx = alvIndicesVisibles(st);
+  const ocultas = new Set(alvLayout(st).ocultas || []);
+  const primera = idx.find(i=> !ocultas.has(st.cols[i].id));
+  const filas = [st.table.tHead.rows[0], ...st.table.querySelectorAll(':scope > tbody > tr, :scope > tfoot > tr')];
+  filas.forEach(tr=>{
+    const celdas = [...tr.cells];
+    if(celdas.length !== st.cols.length || celdas.some(c=> c.dataset.alvC === undefined)) return;
+    const actual = celdas.map(c=> Number(c.dataset.alvC));
+    if(actual.join() !== idx.join()){      // solo se mueve si cambió (no interrumpe la escritura)
+      const porIdx = {};
+      celdas.forEach(c=> porIdx[c.dataset.alvC] = c);
+      idx.forEach(i=> tr.appendChild(porIdx[i]));
+    }
+    celdas.forEach(c=>{
+      const i = Number(c.dataset.alvC);
+      c.classList.toggle('alv-oculta', ocultas.has(st.cols[i].id));
+      c.classList.toggle('alv-fija', i === primera);
+    });
+  });
+  if(ordenar) alvOrdenarFilas(st);
+  alvFiltrar(st);
+  alvRefrescarEncabezados(st);
+}
+
+function alvGrupos(tbody){
+  const grupos = [];
+  [...tbody.rows].forEach(tr=>{
+    if(tr.dataset.alvTipo === 'fila' || !grupos.length) grupos.push([tr]);
+    else grupos[grupos.length - 1].push(tr);
+  });
+  return grupos;
+}
+function alvOrdenarFilas(st){
+  const s = alvLayout(st).clasif;
+  const col = s && st.cols.find(c=> c.id === s.col);
+  if(!col) return;
+  const dir = s.dir === 'desc' ? -1 : 1;
+  [...st.table.tBodies].forEach(tb=>{
+    const lista = alvGrupos(tb).map((g, k)=> ({ g, k, v: g[0].dataset.alvTipo === 'fila' ? alvValorOrden(alvTextoCelda(alvCelda(g[0], col))) : undefined }));
+    lista.sort((a, b)=>{
+      if(a.v === undefined || b.v === undefined) return (a.v === undefined ? -1 : 0) - (b.v === undefined ? -1 : 0) || a.k - b.k;
+      if(a.v === null || b.v === null) return (a.v === null) - (b.v === null) || a.k - b.k;   // vacíos al final
+      const na = typeof a.v === 'number', nb = typeof b.v === 'number';
+      if(na !== nb) return (na ? -1 : 1) * dir;
+      return (na ? a.v - b.v : String(a.v).localeCompare(String(b.v), 'es', { numeric: true })) * dir || a.k - b.k;
+    });
+    lista.forEach(x=> x.g.forEach(tr=> tb.appendChild(tr)));
+  });
+}
+
+function alvFiltrar(st){
+  const filtros = ALV_FILTROS[st.clave] || {};
+  const q = (ALV_BUSQUEDA[st.clave] || '').toLowerCase();
+  let vis = 0, total = 0;
+  [...st.table.tBodies].forEach(tb=> alvGrupos(tb).forEach(g=>{
+    if(g[0].dataset.alvTipo !== 'fila') return;
+    total++;
+    let ok = true;
+    for(const [id, valores] of Object.entries(filtros)){
+      const col = st.cols.find(c=> c.id === id);
+      if(col && !valores.has(alvTextoCelda(alvCelda(g[0], col)))){ ok = false; break; }
+    }
+    if(ok && q){
+      ok = g.some(r=> r.textContent.toLowerCase().includes(q) ||
+        [...r.querySelectorAll('input,select')].some(i=> String(i.value).toLowerCase().includes(q)));
+    }
+    g.forEach(r=> r.classList.toggle('alv-filtrada', !ok));
+    if(ok) vis++;
+  }));
+  st.conteo = { vis, total };
+}
+
+function alvRefrescarEncabezados(st){
+  const lay = alvLayout(st);
+  const filtros = ALV_FILTROS[st.clave] || {};
+  st.cols.forEach(c=>{
+    c.th.classList.toggle('alv-sel', st.sel === c.id);
+    c.th.classList.toggle('alv-asc', !!(lay.clasif && lay.clasif.col === c.id && lay.clasif.dir === 'asc'));
+    c.th.classList.toggle('alv-desc', !!(lay.clasif && lay.clasif.col === c.id && lay.clasif.dir === 'desc'));
+    c.th.classList.toggle('alv-con-filtro', !!filtros[c.id]);
+  });
+  const nf = Object.keys(filtros).length;
+  const info = st.barra && st.barra.querySelector('.alv-info');
+  if(info){
+    const sel = st.sel ? `Columna: <b>${st.cols.find(c=> c.id === st.sel).nombre}</b> · ` : '';
+    info.innerHTML = `${sel}${st.conteo.vis} de ${st.conteo.total} filas${nf ? ` · ${nf} filtro(s)` : ''}`;
+  }
+}
+
+/* ---------- acciones ---------- */
+function alvColumnaActiva(st){
+  if(st.sel) return st.cols.find(c=> c.id === st.sel);
+  const info = st.barra.querySelector('.alv-info');
+  info.innerHTML = '<b style="color:var(--rose)">Selecciona una columna: clic en su encabezado.</b>';
+  return null;
+}
+function alvClasificar(st, dir){
+  const col = alvColumnaActiva(st); if(!col) return;
+  alvLayout(st).clasif = { col: col.id, dir };
+  alvGuardar(); alvAplicar(st, true);
+}
+function alvMoverColumna(st, id, antesDe){
+  const orden = alvIndicesVisibles(st).map(i=> st.cols[i].id).filter(x=> x !== id);
+  const pos = antesDe ? orden.indexOf(antesDe) : orden.length;
+  orden.splice(pos < 0 ? orden.length : pos, 0, id);
+  alvLayout(st).orden = orden;
+  alvGuardar(); alvAplicar(st, false);
+}
+function alvOcultar(st, id, ocultar){
+  const lay = alvLayout(st);
+  const set = new Set(lay.ocultas || []);
+  if(ocultar){
+    const visibles = st.cols.filter(c=> !set.has(c.id)).length;
+    if(visibles <= 1) return;                       // siempre queda al menos una columna
+    set.add(id);
+  } else set.delete(id);
+  lay.ocultas = [...set];
+  if(ocultar && st.sel === id) st.sel = null;
+  alvGuardar(); alvAplicar(st, false);
+}
+function alvInicial(st){
+  delete ALV_LAYOUTS[st.clave];
+  delete ALV_FILTROS[st.clave];
+  ALV_BUSQUEDA[st.clave] = '';
+  st.sel = null;
+  const buscar = st.barra.querySelector('.alv-buscar'); if(buscar) buscar.value = '';
+  alvGuardar();
+  // Volver al orden original de filas = volver a dibujar la ficha.
+  renderAll();
+}
+
+/* ---------- menú flotante (contextual, filtro, disposición) ---------- */
+function alvCerrarMenu(){ const m = document.getElementById('alv-menu'); if(m) m.remove(); }
+function alvAbrirMenu(x, y, html){
+  alvCerrarMenu();
+  const m = document.createElement('div');
+  m.id = 'alv-menu';
+  m.innerHTML = html;
+  document.body.appendChild(m);
+  const r = m.getBoundingClientRect();
+  m.style.left = Math.max(8, Math.min(x, innerWidth - r.width - 8)) + 'px';
+  m.style.top = Math.max(8, Math.min(y, innerHeight - r.height - 8)) + 'px';
+  return m;
+}
+document.addEventListener('mousedown', (e)=>{ const m = document.getElementById('alv-menu'); if(m && !m.contains(e.target)) alvCerrarMenu(); });
+document.addEventListener('keydown', (e)=>{ if(e.key === 'Escape') alvCerrarMenu(); });
+
+function alvMenuContextual(st, col, x, y){
+  st.sel = col.id; alvRefrescarEncabezados(st);
+  const filtrada = !!(ALV_FILTROS[st.clave] || {})[col.id];
+  const m = alvAbrirMenu(x, y, `
+    <div class="alv-menu-tit">${col.nombre}</div>
+    <button class="it" data-a="asc">▲ Clasificación ascendente</button>
+    <button class="it" data-a="desc">▼ Clasificación descendente</button>
+    <button class="it" data-a="filtro">⛉ Fijar filtro…</button>
+    ${filtrada ? '<button class="it" data-a="quitar">✕ Quitar filtro de esta columna</button>' : ''}
+    <button class="it" data-a="ocultar">◌ Ocultar columna</button>
+    <button class="it" data-a="columnas">☰ Modificar disposición…</button>`);
+  m.onclick = (e)=>{
+    const a = e.target.closest('[data-a]'); if(!a) return;
+    alvCerrarMenu();
+    if(a.dataset.a === 'asc') alvClasificar(st, 'asc');
+    if(a.dataset.a === 'desc') alvClasificar(st, 'desc');
+    if(a.dataset.a === 'filtro') alvMenuFiltro(st, col, x, y);
+    if(a.dataset.a === 'quitar'){ delete ALV_FILTROS[st.clave][col.id]; alvAplicar(st, false); }
+    if(a.dataset.a === 'ocultar') alvOcultar(st, col.id, true);
+    if(a.dataset.a === 'columnas') alvMenuDisposicion(st, x, y);
+  };
+}
+
+function alvMenuFiltro(st, col, x, y){
+  const valores = new Map();
+  [...st.table.tBodies].forEach(tb=> alvGrupos(tb).forEach(g=>{
+    if(g[0].dataset.alvTipo !== 'fila') return;
+    const v = alvTextoCelda(alvCelda(g[0], col));
+    valores.set(v, (valores.get(v) || 0) + 1);
+  }));
+  const actual = (ALV_FILTROS[st.clave] || {})[col.id];
+  const lista = [...valores.entries()].sort((a, b)=> {
+    const va = alvValorOrden(a[0]), vb = alvValorOrden(b[0]);
+    return (typeof va === 'number' && typeof vb === 'number') ? va - vb : String(a[0]).localeCompare(String(b[0]), 'es', { numeric: true });
+  });
+  const esc = (t)=> String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+  const m = alvAbrirMenu(x, y, `
+    <div class="alv-menu-tit">Fijar filtro · ${esc(col.nombre)}</div>
+    <input class="alv-filtro-buscar" placeholder="Buscar valor…">
+    <label class="alv-chk alv-chk-todos"><input type="checkbox" data-todos ${!actual ? 'checked' : ''}> (Seleccionar todo)</label>
+    <div class="alv-filtro-lista">${lista.map(([v, n])=> `
+      <label class="alv-chk" data-txt="${esc(v.toLowerCase())}"><input type="checkbox" value="${esc(v)}" ${!actual || actual.has(v) ? 'checked' : ''}>
+        <span>${v === '' ? '<i>(vacío)</i>' : esc(v)}</span><em>${n}</em></label>`).join('')}</div>
+    <div class="alv-menu-pie"><button class="btn btn-ghost btn-small" data-a="cancelar">Cancelar</button><button class="btn btn-primary btn-small" data-a="aplicar">Aplicar</button></div>`);
+  const checks = ()=> [...m.querySelectorAll('.alv-filtro-lista input')];
+  m.querySelector('.alv-filtro-buscar').oninput = (e)=>{
+    const q = e.target.value.toLowerCase();
+    m.querySelectorAll('.alv-filtro-lista .alv-chk').forEach(l=> l.style.display = l.dataset.txt.includes(q) ? '' : 'none');
+  };
+  m.querySelector('[data-todos]').onchange = (e)=> checks().forEach(c=>{ if(c.closest('.alv-chk').style.display !== 'none') c.checked = e.target.checked; });
+  m.querySelector('.alv-filtro-buscar').focus();
+  m.onclick = (e)=>{
+    const a = e.target.closest('[data-a]'); if(!a) return;
+    if(a.dataset.a === 'aplicar'){
+      const sel = checks().filter(c=> c.checked).map(c=> c.value);
+      ALV_FILTROS[st.clave] = ALV_FILTROS[st.clave] || {};
+      if(sel.length === checks().length) delete ALV_FILTROS[st.clave][col.id];
+      else ALV_FILTROS[st.clave][col.id] = new Set(sel);
+      alvAplicar(st, false);
+    }
+    alvCerrarMenu();
+  };
+}
+
+function alvMenuDisposicion(st, x, y){
+  const dibujar = ()=>{
+    const ocultas = new Set(alvLayout(st).ocultas || []);
+    const orden = alvIndicesVisibles(st).map(i=> st.cols[i]);
+    const m = alvAbrirMenu(x, y, `
+      <div class="alv-menu-tit">Modificar disposición</div>
+      <div class="alv-cols">${orden.map((c, k)=> `
+        <div class="alv-col-fila">
+          <label class="alv-chk"><input type="checkbox" data-id="${c.id}" ${ocultas.has(c.id) ? '' : 'checked'}><span>${c.nombre}</span></label>
+          <button data-up="${k}" ${k === 0 ? 'disabled' : ''} title="Subir">▲</button>
+          <button data-down="${k}" ${k === orden.length - 1 ? 'disabled' : ''} title="Bajar">▼</button>
+        </div>`).join('')}</div>
+      <div class="alv-menu-pie"><button class="btn btn-ghost btn-small" data-a="inicial">Disposición inicial</button><button class="btn btn-primary btn-small" data-a="cerrar">Listo</button></div>`);
+    m.onchange = (e)=>{ const id = e.target.dataset.id; if(id !== undefined){ alvOcultar(st, id, !e.target.checked); dibujar(); } };
+    m.onclick = (e)=>{
+      const t = e.target.closest('button'); if(!t) return;
+      if(t.dataset.up !== undefined){ const k = Number(t.dataset.up); alvMoverColumna(st, orden[k].id, orden[k - 1].id); dibujar(); }
+      else if(t.dataset.down !== undefined){ const k = Number(t.dataset.down); alvMoverColumna(st, orden[k].id, orden[k + 2] ? orden[k + 2].id : null); dibujar(); }
+      else if(t.dataset.a === 'inicial'){ alvCerrarMenu(); alvInicial(st); }
+      else if(t.dataset.a === 'cerrar') alvCerrarMenu();
+    };
+  };
+  dibujar();
+}
+
+/* ---------- barra de herramientas ---------- */
+function alvBarra(st){
+  const b = document.createElement('div');
+  b.className = 'alv-barra';
+  b.innerHTML = `
+    <button data-a="asc" title="Clasificación ascendente (columna seleccionada)">▲<span>Ascendente</span></button>
+    <button data-a="desc" title="Clasificación descendente (columna seleccionada)">▼<span>Descendente</span></button>
+    <i class="alv-sep"></i>
+    <button data-a="filtro" title="Fijar filtro en la columna seleccionada">⛉<span>Fijar filtro</span></button>
+    <button data-a="sinfiltro" title="Quitar todos los filtros">✕<span>Quitar filtros</span></button>
+    <i class="alv-sep"></i>
+    <button data-a="columnas" title="Mostrar, ocultar y ordenar columnas">☰<span>Disposición</span></button>
+    <button data-a="inicial" title="Volver a la disposición inicial">↺<span>Inicial</span></button>
+    <span class="alv-info"></span>
+    <input class="alv-buscar" type="search" placeholder="Buscar en la tabla…" value="${(ALV_BUSQUEDA[st.clave] || '').replace(/"/g, '&quot;')}">`;
+  b.onclick = (e)=>{
+    const a = e.target.closest('button[data-a]'); if(!a) return;
+    const r = a.getBoundingClientRect();
+    if(a.dataset.a === 'asc') alvClasificar(st, 'asc');
+    if(a.dataset.a === 'desc') alvClasificar(st, 'desc');
+    if(a.dataset.a === 'filtro'){ const col = alvColumnaActiva(st); if(col) alvMenuFiltro(st, col, r.left, r.bottom + 4); }
+    if(a.dataset.a === 'sinfiltro'){ delete ALV_FILTROS[st.clave]; alvAplicar(st, false); }
+    if(a.dataset.a === 'columnas') alvMenuDisposicion(st, r.left, r.bottom + 4);
+    if(a.dataset.a === 'inicial') alvInicial(st);
+  };
+  b.querySelector('.alv-buscar').oninput = (e)=>{ ALV_BUSQUEDA[st.clave] = e.target.value; alvFiltrar(st); alvRefrescarEncabezados(st); };
+  return b;
+}
+
+/* ---------- activar en cada tabla ---------- */
+function alvMejorar(table){
+  if(table.dataset.alv) return;
+  table.dataset.alv = '1';
+  const wrap = document.createElement('div');
+  wrap.className = 'alv';
+  const scroll = document.createElement('div');
+  scroll.className = 'alv-scroll';
+  table.parentNode.insertBefore(wrap, table);
+  wrap.appendChild(scroll);
+  scroll.appendChild(table);
+  const head = table.tHead;
+  if(!head || head.rows.length !== 1 || [...head.rows[0].cells].some(c=> c.colSpan > 1)) return;   // solo estilo
+
+  const cols = alvColumnas(table);
+  const st = { table, cols, clave: alvClave(table, cols), sel: null, conteo: { vis: 0, total: 0 } };
+  table._alv = st;
+  st.barra = alvBarra(st);
+  wrap.insertBefore(st.barra, scroll);
+  cols.forEach(c=> c.th.dataset.alvC = c.i);
+  alvProcesarFilas(st);
+  alvAplicar(st, true);
+
+  cols.forEach(c=>{
+    const th = c.th;
+    th.title = th.title || 'Clic: seleccionar columna · Clic derecho: opciones · Arrastrar: mover';
+    th.addEventListener('click', (e)=>{
+      if(e.target.closest('input,button,select,textarea')) return;
+      st.sel = st.sel === c.id ? null : c.id;
+      alvRefrescarEncabezados(st);
+    });
+    th.addEventListener('contextmenu', (e)=>{
+      if(e.target.closest('input,textarea')) return;
+      e.preventDefault();
+      alvMenuContextual(st, c, e.clientX, e.clientY);
+    });
+    if(!th.querySelector('input,button')){
+      th.draggable = true;
+      th.addEventListener('dragstart', (e)=>{ e.dataTransfer.setData('text/alv', c.id); e.dataTransfer.effectAllowed = 'move'; });
+    }
+    th.addEventListener('dragover', (e)=>{ if([...e.dataTransfer.types].includes('text/alv')){ e.preventDefault(); th.classList.add('alv-drop'); } });
+    th.addEventListener('dragleave', ()=> th.classList.remove('alv-drop'));
+    th.addEventListener('drop', (e)=>{
+      th.classList.remove('alv-drop');
+      const id = e.dataTransfer.getData('text/alv');
+      if(id && id !== c.id){ e.preventDefault(); alvMoverColumna(st, id, c.id); }
+    });
+  });
+
+  // Filas que la app agrega o reemplaza después (pies, materiales): se acomodan solas.
+  new MutationObserver(()=>{ if(alvProcesarFilas(st)) alvAplicar(st, false); })
+    .observe(table, { childList: true, subtree: true });
+}
+
+let alvPendiente = 0;
+function alvEscanear(){ document.querySelectorAll('#main table:not([data-alv])').forEach(alvMejorar); }
+new MutationObserver(()=>{ clearTimeout(alvPendiente); alvPendiente = setTimeout(alvEscanear, 0); })
+  .observe(document.getElementById('main'), { childList: true, subtree: true });
 
 /* ============================================================================
    Chispi: la mascota (mismo diseño y comportamiento que en obras)
