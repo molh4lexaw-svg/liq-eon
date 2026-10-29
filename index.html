@@ -4417,7 +4417,9 @@ async function traerDeSap(){
   }catch(err){
     const sinConector = err.name === 'TypeError' || err.name === 'AbortError';
     const msg = sinConector
-      ? 'No se pudo conectar con el conector SAP. Abre "iniciar_conector.bat" (sap_conector.py) y vuelve a intentar.'
+      ? 'No se pudo conectar con el conector SAP. Revisa: 1) que la ventana de "iniciar_conector.bat" (sap_conector.py) esté abierta; '
+        + '2) si es la primera vez desde ' + (location.protocol === 'file:' ? 'este archivo' : location.origin) + ', responde "s" en esa ventana para autorizar la página; '
+        + '3) si el navegador pregunta por "acceso a la red local" o "dispositivos locales", permítelo. Luego vuelve a intentar.'
       : 'SAP: ' + err.message;
     alert(msg);
     const e = document.getElementById('sap-estado');
